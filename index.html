@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habib — Frontend Developer</title>
+    <meta name="description" content="Frontend developer portfolio — Spider-Man &amp; Symbiote inspired.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="img/logo.png">
+</head>
+
+<body class="is-loading">
+
+    <!-- ===================== LOADING SCREEN ===================== -->
+    <div id="loadingScreen" class="loading-screen" aria-hidden="true">
+        <div class="loading-inner">
+            <div class="loading-emblem">
+                <svg viewBox="0 0 100 100" class="loading-spider">
+                    <g class="loading-spider-legs">
+                        <path d="M50 50 L20 30 M50 50 L14 46 M50 50 L18 64 M50 50 L28 78" />
+                        <path d="M50 50 L80 30 M50 50 L86 46 M50 50 L82 64 M50 50 L72 78" />
+                    </g>
+                    <ellipse class="loading-spider-body" cx="50" cy="46" rx="10" ry="14" />
+                    <circle class="loading-spider-head" cx="50" cy="32" r="7" />
+                </svg>
+            </div>
+            <div class="loading-text">
+                <span class="loading-line" data-i18n="loadingLine1">Loading...</span>
+                <span class="loading-line loading-line-dim" data-i18n="loadingLine2">Preparing your experience...</span>
+            </div>
+            <div class="loading-bar-track">
+                <div class="loading-bar-fill" id="loadingBarFill"></div>
+            </div>
+            <div class="loading-percent" id="loadingPercent">0%</div>
+        </div>
+    </div>
+
+    <!-- ===================== NAVBAR ===================== -->
+    <header class="navbar">
+        <div class="container">
+            <div class="nav-inner glass">
+                <a href="#home" class="logo">FINO<span>.DEV</span></a>
+
+                <nav>
+                    <ul class="nav-links" id="navLinks">
+                        <li><a href="#home" data-i18n="navHome">Home</a></li>
+                        <li><a href="#about" data-i18n="navAbout">About</a></li>
+                        <li><a href="#skills" data-i18n="navSkills">Skills</a></li>
+                        <li><a href="#projects" data-i18n="navProjects">Projects</a></li>
+                        <li><a href="#contact" data-i18n="navContact">Contact</a></li>
+                    </ul>
+                </nav>
+
+                <div class="nav-controls">
+                    <div class="nav-socials" id="navSocials"></div>
+
+                    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                        <svg class="icon-sun" viewBox="0 0 24 24">
+                            <path
+                                d="M12 4.5a1 1 0 0 1-1-1V2a1 1 0 1 1 2 0v1.5a1 1 0 0 1-1 1Zm0 15a1 1 0 0 1 1 1V22a1 1 0 1 1-2 0v-1.5a1 1 0 0 1 1-1ZM4.22 5.64a1 1 0 0 1-1.41 0l-.7-.7a1 1 0 0 1 1.41-1.42l.7.71a1 1 0 0 1 0 1.41Zm14.85 14.85a1 1 0 0 1-1.41 0l-.71-.71a1 1 0 1 1 1.42-1.41l.7.7a1 1 0 0 1 0 1.42ZM2 12a1 1 0 0 1 1-1h1.5a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1Zm18.5-1H22a1 1 0 1 1 0 2h-1.5a1 1 0 1 1 0-2ZM5.64 19.78a1 1 0 0 1 0-1.41l.71-.71a1 1 0 1 1 1.41 1.42l-.7.7a1 1 0 0 1-1.42 0ZM17.66 5.64a1 1 0 0 1 0-1.41l.7-.71a1 1 0 1 1 1.42 1.42l-.71.7a1 1 0 0 1-1.41 0ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Z" />
+                        </svg>
+                        <svg class="icon-moon" viewBox="0 0 24 24">
+                            <path
+                                d="M20.74 14.5a8.5 8.5 0 0 1-10.24-10.24.75.75 0 0 0-.98-.9A10 10 0 1 0 21.64 15.5a.75.75 0 0 0-.9-1Z" />
+                        </svg>
+                    </button>
+
+                    <div class="lang-toggle" id="langToggle">
+                        <button type="button" class="lang-btn" data-lang="id">ID</button>
+                        <button type="button" class="lang-btn" data-lang="en">EN</button>
+                    </div>
+
+                    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                        <span></span><span></span><span></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===================== HERO ===================== -->
+    <section class="hero" id="home">
+        <div class="hero-bg" id="heroBg"></div>
+        <canvas id="particles"></canvas>
+
+        <div class="container hero-container">
+            <div class="hero-grid">
+                <div class="hero-content">
+                    <span class="eyebrow" data-i18n="heroEyebrow">Portfolio // City Watch</span>
+                    <h1>
+                        <span class="hi" data-i18n="heroHi">Hi, I'm</span>
+                        <span class="name" id="heroName">Your Name</span>
+                    </h1>
+                    <div class="role-line">
+                        <span id="typingRole"></span><span class="cursor"></span>
+                    </div>
+                    <p class="hero-desc" id="heroDesc">Short description goes here.</p>
+
+                    <div class="hero-actions">
+                        <a href="#projects" class="btn btn-primary" data-i18n="heroBtnProjects">View Projects</a>
+                        <a href="#contact" class="btn btn-ghost" data-i18n="heroBtnContact">Contact</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-visual reveal-right" id="heroVisual">
+            <div class="hero-figure-wrap">
+                <img src="img/hero-figure.svg" alt="Hero character artwork" id="heroFigure" class="hero-figure">
+            </div>
+        </div>
+
+        <div class="scroll-cue"><span data-i18n="scrollCue">SCROLL</span><span class="line"></span></div>
+    </section>
+
+    <!-- ===================== ABOUT ===================== -->
+    <section id="about">
+        <div class="container">
+            <div class="section-head reveal">
+                <span class="eyebrow" data-i18n="aboutEyebrow">Origin Story</span>
+                <h2 data-i18n="aboutTitle">About Me</h2>
+            </div>
+
+            <div class="about-wrap glass reveal">
+                <div class="about-photo">
+                    <img src="img/avatar.svg" alt="Profile photo" id="aboutAvatar">
+                    <div class="about-name" id="aboutName">Your Name</div>
+                    <div class="about-role" id="aboutRole">Frontend Developer</div>
+                </div>
+
+                <div class="about-text">
+                    <p id="aboutBio">Short biography goes here.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== SKILLS ===================== -->
+    <section id="skills">
+        <div class="container">
+            <div class="section-head reveal">
+                <span class="eyebrow" data-i18n="skillsEyebrow">Web-Slinger Gear</span>
+                <h2 data-i18n="skillsTitle">Skills</h2>
+                <p data-i18n="skillsSubtitle">The tech I reach for to build things around the city.</p>
+            </div>
+
+            <div class="skills-wrap glass reveal" id="skillsWrap"></div>
+        </div>
+    </section>
+
+    <!-- ===================== PROJECTS ===================== -->
+    <section id="projects">
+        <div class="container">
+            <div class="section-head reveal">
+                <span class="eyebrow" data-i18n="projectsEyebrow">Field Missions</span>
+                <h2 data-i18n="projectsTitle">Projects</h2>
+                <p data-i18n="projectsSubtitle">A few builds worth swinging by.</p>
+            </div>
+
+            <div class="projects-wrap glass reveal">
+                <div class="projects-grid" id="projectsGrid"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== CONTACT ===================== -->
+    <section id="contact">
+        <div class="container">
+            <div class="section-head reveal">
+                <span class="eyebrow" data-i18n="contactEyebrow">Signal The Bugle</span>
+                <h2 data-i18n="contactTitle">Contact</h2>
+            </div>
+
+            <div class="contact-wrap glass reveal">
+                <div class="contact-info">
+                    <h3 data-i18n="contactHeading">Let's build something.</h3>
+                    <p data-i18n="contactDesc">Have a project in mind, or just want to say hi? Send a message.</p>
+                    <div class="contact-detail" id="contactEmail"></div>
+                </div>
+
+                <form id="contactForm" novalidate>
+                    <div class="form-group" id="nameGroup">
+                        <input type="text" name="name" data-i18n-placeholder="contactNamePlaceholder"
+                            placeholder="Name">
+                        <div class="error-msg"></div>
+                    </div>
+                    <div class="form-group" id="emailGroup">
+                        <input type="email" name="email" data-i18n-placeholder="contactEmailPlaceholder"
+                            placeholder="Email">
+                        <div class="error-msg"></div>
+                    </div>
+                    <div class="form-group" id="messageGroup">
+                        <textarea name="message" data-i18n-placeholder="contactMessagePlaceholder"
+                            placeholder="Message"></textarea>
+                        <div class="error-msg"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" data-i18n="contactSendBtn">Send Message</button>
+                    <div class="form-status" id="formStatus"></div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== FOOTER ===================== -->
+    <footer>
+        <div class="container footer-inner">
+            <p>&copy; <span id="footerYear"></span> <span id="footerName"></span>. <span data-i18n="footerRights">All
+                    rights reserved.</span></p>
+            <div class="footer-socials" id="footerSocials"></div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="java/config.js"></script>
+    <script src="java/script.js"></script>
+</body>
+
+</html>
