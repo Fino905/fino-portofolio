@@ -60,6 +60,8 @@
 
 html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
+    width: 100%;
 }
 
 html,
@@ -659,7 +661,7 @@ textarea {
 
 #particles {
     position: absolute;
-    inset: -60px;
+    inset: 0;
     z-index: -1;
     pointer-events: none;
 }
