@@ -1,8 +1,3 @@
-/* ===================================================================
-   script.js — renders CONFIG into the DOM and wires up interactions.
-   Vanilla JS only. Depends on config.js being loaded first.
-   =================================================================== */
-
 (() => {
     const icons = {
         github: '<svg viewBox="0 0 24 24"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.1 3.29 9.42 7.86 10.96.57.1.78-.25.78-.55v-2.1c-3.2.7-3.88-1.37-3.88-1.37-.52-1.34-1.28-1.7-1.28-1.7-1.04-.72.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.75 2.7 1.25 3.36.96.1-.74.4-1.25.73-1.54-2.56-.29-5.26-1.28-5.26-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.6.24 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.7 5.4-5.28 5.69.42.36.78 1.08.78 2.18v3.23c0 .3.2.66.79.55A10.52 10.52 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"/></svg>',
@@ -16,6 +11,12 @@
     /* ================= STATE ================= */
     let currentLang = (localStorage.getItem("lang")) || CONFIG.defaults.lang || "id";
     let currentTheme = (localStorage.getItem("theme")) || CONFIG.defaults.theme || "dark";
+    let soundFxEnabled = (localStorage.getItem("soundFx")) !== "off";
+    /* live position of the custom spider cursor, kept in sync by
+       initSpiderCursor()'s tick loop; stays null on touch/narrow
+       viewports where that cursor doesn't exist, so the web shooter
+       falls back to the real pointer/touch position. */
+    let spiderCursorPos = null;
 
     /* pick a bilingual field: { id:"", en:"" } -> string, or pass strings through unchanged */
     function pick(field) {
@@ -577,6 +578,7 @@
             swingPhase += 0.05;
             const swing = Math.sin(swingPhase) * (paused ? 1 : 4);
             cursor.style.transform = `translate(${curX}px, ${curY}px) rotate(${swing}deg)`;
+            spiderCursorPos = { x: curX, y: curY };
             rafId = requestAnimationFrame(tick);
         }
         rafId = requestAnimationFrame(tick);
@@ -588,6 +590,23 @@
             } else if (!rafId) {
                 rafId = requestAnimationFrame(tick);
             }
+        });
+    }
+
+    /* ================= SOUND FX TOGGLE ================= */
+    /* Small on/off switch for the web-shooter's sound effect, mirrored in
+       the navbar next to the theme/lang toggles. Preference persists
+       across visits via the same localStorage pattern as theme/lang. */
+    function applySoundFx(enabled) {
+        soundFxEnabled = enabled;
+        document.documentElement.setAttribute("data-sound-fx", enabled ? "on" : "off");
+        localStorage.setItem("soundFx", enabled ? "on" : "off");
+        document.getElementById("soundToggle")?.setAttribute("aria-pressed", String(enabled));
+    }
+    function initSoundToggle() {
+        applySoundFx(soundFxEnabled);
+        document.getElementById("soundToggle")?.addEventListener("click", () => {
+            applySoundFx(!soundFxEnabled);
         });
     }
 
@@ -604,48 +623,41 @@
         const SELECTOR = [
             ".nav-links a", ".btn", ".project-card",
             ".nav-socials a", ".footer-socials a", ".skill-logo-card",
-            ".lang-btn", ".theme-toggle",
+            ".lang-btn", ".theme-toggle", ".sound-toggle",
             ".project-gh", "#contactForm button[type='submit']"
         ].join(", ");
 
         const reduceMotionMQ = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-        /* ---- synthesized "thwip" sound (no audio file needed) ---- */
-        let audioCtx = null;
+        /* ---- custom audio file "thwip" sound ---- */
         let lastPlay = 0;
+        const thwipSound = new Audio("audio/spider-web.mp3"); // ganti path sesuai file kamu
+        thwipSound.volume = 0.4; // atur volume 0–1
+        thwipSound.preload = "auto";
+
         function ensureAudio() {
-            if (audioCtx) {
-                if (audioCtx.state === "suspended") audioCtx.resume();
-                return;
-            }
-            const Ctx = window.AudioContext || window.webkitAudioContext;
-            if (!Ctx) return;
-            try { audioCtx = new Ctx(); } catch (e) { audioCtx = null; }
+            // pemanasan: load file di gesture pertama biar playback pertama instan
+            thwipSound.load();
         }
-        function playThwip() {
-            if (!audioCtx) return;
-            const now = audioCtx.currentTime;
-            if (now - lastPlay < 0.06) return; // avoid overlap spam on rapid clicks
+        function playJebret() {
+            if (!soundFxEnabled) return;
+            const now = performance.now();
+            if (now - lastPlay < 100) return; // prevent overlapping spam on rapid clicks
             lastPlay = now;
 
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = "sine";
-            osc.frequency.setValueAtTime(1500, now);
-            osc.frequency.exponentialRampToValueAtTime(240, now + 0.09);
-            gain.gain.setValueAtTime(0.0001, now);
-            gain.gain.exponentialRampToValueAtTime(0.18, now + 0.008); // soft, ~18%
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.11);
-            osc.connect(gain).connect(audioCtx.destination);
-            osc.start(now);
-            osc.stop(now + 0.12);
+            const s = thwipSound.cloneNode(); // clone biar klik beruntun tetap bisa overlap
+            s.volume = thwipSound.volume;
+            s.play().catch(() => { }); // .catch supaya tidak error kalau browser block autoplay
         }
-        // warm up the audio context on the very first user gesture so the
-        // first real click has zero perceptible latency
+        // warm up on the very first user gesture so the first real click
+        // has zero perceptible latency
         document.addEventListener("pointerdown", ensureAudio, { once: true, passive: true });
 
         /* ---- visual fx, all self-cleaning via WAAPI onfinish ---- */
-        function spawnLine(x1, y1, x2, y2) {
+
+        /* the travelling shot: a bright thread from the origin (spider
+           cursor / pointer / touch) to the clicked element */
+        function spawnShotLine(x1, y1, x2, y2) {
             const dist = Math.hypot(x2 - x1, y2 - y1);
             if (dist < 4) return; // click landed dead-center, no line needed
             const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
@@ -659,42 +671,118 @@
                 { transform: `rotate(${angle}deg) scaleX(0)`, opacity: 1 },
                 { transform: `rotate(${angle}deg) scaleX(1)`, opacity: 1, offset: .4 },
                 { transform: `rotate(${angle}deg) scaleX(1)`, opacity: 0 }
-            ], { duration: 380, easing: "cubic-bezier(.2,.8,.2,1)" });
+            ], { duration: 280, easing: "cubic-bezier(.2,.8,.2,1)" });
             anim.onfinish = () => line.remove();
         }
 
-        function spawnParticles(x, y) {
+        /* small dissolving thread-fragments, thrown outward once the web
+           lands — kept sparse for performance */
+        function spawnWebFragments(x, y) {
             const count = 5;
             for (let i = 0; i < count; i++) {
                 const p = document.createElement("div");
-                p.className = "web-particle";
+                p.className = "web-fragment";
                 p.style.left = x + "px";
                 p.style.top = y + "px";
+                const startRot = Math.random() * 360;
+                p.style.transform = `translate(-50%,-50%) rotate(${startRot}deg)`;
                 document.body.appendChild(p);
                 const angle = Math.random() * Math.PI * 2;
-                const dist = 14 + Math.random() * 18;
+                const dist = 12 + Math.random() * 16;
                 const px = Math.cos(angle) * dist, py = Math.sin(angle) * dist;
-                const rot = Math.random() * 160 - 80;
+                const rot = startRot + (Math.random() * 200 - 100);
                 const anim = p.animate([
-                    { transform: "translate(-50%,-50%) translate(0,0) rotate(0deg)", opacity: 1 },
+                    { transform: `translate(-50%,-50%) translate(0,0) rotate(${startRot}deg)`, opacity: 1 },
                     { transform: `translate(-50%,-50%) translate(${px}px, ${py}px) rotate(${rot}deg)`, opacity: 0 }
                 ], { duration: 500, easing: "ease-out" });
                 anim.onfinish = () => p.remove();
             }
         }
 
-        function spawnImpact(x, y, allowParticles) {
-            const ring = document.createElement("div");
-            ring.className = "web-impact";
-            ring.style.left = x + "px";
-            ring.style.top = y + "px";
-            document.body.appendChild(ring);
-            const anim = ring.animate([
-                { transform: "translate(-50%,-50%) scale(.2)", opacity: .9 },
-                { transform: "translate(-50%,-50%) scale(1.5)", opacity: 0 }
-            ], { duration: 320, easing: "ease-out" });
-            anim.onfinish = () => ring.remove();
-            if (allowParticles) spawnParticles(x, y);
+        /* procedurally builds a small radial spider-web (spokes + a couple
+           of connecting rings, each with a little organic jitter so it
+           never looks perfectly geometric/mechanical) attached right on
+           top of the clicked element. */
+        const SVG_NS = "http://www.w3.org/2000/svg";
+        function buildWebSVG(size) {
+            const svg = document.createElementNS(SVG_NS, "svg");
+            svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
+            svg.setAttribute("width", size);
+            svg.setAttribute("height", size);
+            const c = size / 2;
+            const spokeCount = 7 + Math.round(Math.random());
+            const spokes = [];
+
+            for (let i = 0; i < spokeCount; i++) {
+                const angle = (Math.PI * 2 / spokeCount) * i + (Math.random() * 0.2 - 0.1);
+                const len = c * (0.82 + Math.random() * 0.18);
+                spokes.push({ angle, len });
+                const line = document.createElementNS(SVG_NS, "line");
+                line.setAttribute("x1", c);
+                line.setAttribute("y1", c);
+                line.setAttribute("x2", c + Math.cos(angle) * len);
+                line.setAttribute("y2", c + Math.sin(angle) * len);
+                line.setAttribute("stroke", "rgba(255,255,255,.92)");
+                line.setAttribute("stroke-width", "1.1");
+                line.setAttribute("stroke-linecap", "round");
+                svg.appendChild(line);
+            }
+
+            const rings = 3;
+            for (let r = 1; r <= rings; r++) {
+                const frac = r / (rings + 0.5);
+                let d = "";
+                for (let i = 0; i <= spokeCount; i++) {
+                    const s = spokes[i % spokeCount];
+                    const jitter = 1 + (Math.random() * 0.1 - 0.05);
+                    const rx = c + Math.cos(s.angle) * s.len * frac * jitter;
+                    const ry = c + Math.sin(s.angle) * s.len * frac * jitter;
+                    d += (i === 0 ? "M" : "L") + rx.toFixed(1) + "," + ry.toFixed(1) + " ";
+                }
+                const path = document.createElementNS(SVG_NS, "path");
+                path.setAttribute("d", d.trim());
+                path.setAttribute("fill", "none");
+                path.setAttribute("stroke", "rgba(255,255,255,.7)");
+                path.setAttribute("stroke-width", "0.85");
+                svg.appendChild(path);
+            }
+            return svg;
+        }
+
+        function spawnWebBurst(x, y, allowFragments) {
+            const size = 58 + Math.round(Math.random() * 10);
+            const wrap = document.createElement("div");
+            wrap.className = "web-burst";
+            wrap.style.left = x + "px";
+            wrap.style.top = y + "px";
+            wrap.appendChild(buildWebSVG(size));
+            document.body.appendChild(wrap);
+            // grows from the center, slightly overshoots (the "bounce"),
+            // settles, then fades — 700ms total, inside the 600-800ms spec
+            const anim = wrap.animate([
+                { transform: "translate(-50%,-50%) scale(0)", opacity: 0 },
+                { transform: "translate(-50%,-50%) scale(1.18)", opacity: 1, offset: .45 },
+                { transform: "translate(-50%,-50%) scale(.94)", opacity: 1, offset: .62 },
+                { transform: "translate(-50%,-50%) scale(1)", opacity: 1, offset: .78 },
+                { transform: "translate(-50%,-50%) scale(1.04)", opacity: 0 }
+            ], { duration: 700, easing: "cubic-bezier(.34,1.56,.64,1)" });
+            anim.onfinish = () => wrap.remove();
+            if (allowFragments) spawnWebFragments(x, y);
+        }
+
+        /* minimal, motion-safe stand-in for reduced-motion users: a quick
+           flash with no growth/bounce and no fragments */
+        function spawnReducedFlash(x, y) {
+            const flash = document.createElement("div");
+            flash.className = "web-flash";
+            flash.style.left = x + "px";
+            flash.style.top = y + "px";
+            document.body.appendChild(flash);
+            const anim = flash.animate([
+                { transform: "translate(-50%,-50%) scale(.6)", opacity: .9 },
+                { transform: "translate(-50%,-50%) scale(1)", opacity: 0 }
+            ], { duration: 150, easing: "ease-out" });
+            anim.onfinish = () => flash.remove();
         }
 
         function bounce(el, light) {
@@ -709,7 +797,7 @@
             // WAAPI animations revert to normal styles on finish (fill: "none"
             // by default), so this never fights with the element's own
             // hover/active CSS transforms.
-            el.animate(keyframes, { duration: light ? 160 : 220, easing: "ease-out" });
+            el.animate(keyframes, { duration: light ? 180 : 260, easing: "ease-out" });
         }
 
         document.addEventListener("click", (e) => {
@@ -717,23 +805,31 @@
             if (!target) return;
 
             ensureAudio();
-            playThwip();
+            playJebret();
 
             const reduced = reduceMotionMQ.matches;
             bounce(target, reduced);
-            if (reduced) return; // sound + small scale only, per reduced-motion guidance
 
             const rect = target.getBoundingClientRect();
             const tx = rect.left + rect.width / 2;
             const ty = rect.top + rect.height / 2;
 
+            if (reduced) {
+                spawnReducedFlash(tx, ty); // sound + small scale + short flash only
+                return;
+            }
+
             // e.detail === 0 means a keyboard-triggered click (Enter/Space),
             // which carries no meaningful pointer position — skip the
-            // travelling line but still show the impact at the element.
+            // travelling line but still show the web landing on the element.
             if (e.detail !== 0) {
-                spawnLine(e.clientX, e.clientY, tx, ty);
+                // shoot from the custom spider cursor when it's active
+                // (desktop, pointer devices); otherwise from the real
+                // pointer/touch position that triggered the click.
+                const origin = spiderCursorPos || { x: e.clientX, y: e.clientY };
+                spawnShotLine(origin.x, origin.y, tx, ty);
             }
-            spawnImpact(tx, ty, true);
+            spawnWebBurst(tx, ty, true);
         }, { passive: true });
     }
 
@@ -755,6 +851,7 @@
         initParticles();
         initContactForm();
         initSpiderCursor();
+        initSoundToggle();
         initWebShooter();
     });
 })();
