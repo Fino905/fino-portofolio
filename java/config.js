@@ -1,11 +1,3 @@
-/* ===================================================================
-   config.js — single source of truth for all dynamic content.
-   Edit the values below; script.js renders everything from here.
-
-   Bilingual fields use { id: "...", en: "..." } objects.
-   Pure UI strings live in CONFIG.translations.id / CONFIG.translations.en.
-   =================================================================== */
-
 const CONFIG = {
 
     /* default settings, read by script.js on first load (before any
@@ -105,7 +97,7 @@ const CONFIG = {
                 en: "A portfolio website that showcases my projects and skills, with a city and spiderman theme."
             },
             image: "img/pj/project1.png",
-            link: "#"
+            link: "https://habib-portofolio-project.vercel.app/"
         },
         {
             title: { id: "Website Kelas XI RPL 2", en: "Class XI RPL 2 Website" },
@@ -114,7 +106,7 @@ const CONFIG = {
                 en: "Class XI RPL 2 SMKS Brantas Karangkates website, with a dark and glassmorphic theme."
             },
             image: "img/pj/project2.png",
-            link: "https://xirpl2smkbrantas-website.vercel.app"
+            link: "https://habib-portofolio-project.vercel.app/?id=1"
         },
         {
             title: { id: "Website Studio Minecraft", en: "Studio Minecraft Website" },
@@ -123,7 +115,7 @@ const CONFIG = {
                 en: "A website for a Minecraft game studio, with a dark and glassmorphic theme."
             },
             image: "img/pj/project3.png",
-            link: "https://qmcstudiowebsite.vercel.app/"
+            link: "https://habib-portofolio-project.vercel.app/?id=2"
         },
         {
             title: { id: "Design Figma Website", en: "Figma Website Design" },
@@ -132,7 +124,7 @@ const CONFIG = {
                 en: "A Figma design for an anime comic website."
             },
             image: "img/pj/project4.png",
-            link: "https://www.figma.com/design/Rhv8clUzDwwhEAT3NYYFpG/Latihan-Dasar-Figma?node-id=110-302&t=rzHAnF8HtlH1ETIp-1"
+            link: "https://habib-portofolio-project.vercel.app/?id=3"
         },
         {
             title: { id: "3D Modeling Armor Minecraft", en: "Minecraft Armor 3D Modeling" },
@@ -141,7 +133,7 @@ const CONFIG = {
                 en: "3D modeling of Minecraft armor for a personal project, with a robotic and futuristic theme."
             },
             image: "img/pj/project5.png",
-            link: "https://drive.google.com/drive/folders/1BODLJ88mkKrENT_kFAopaOkZul6cyk55?usp=drive_link"
+            link: "https://habib-portofolio-project.vercel.app/?id=4"
         },
         {
             title: { id: "Website Penjualan", en: "Sales Website" },
@@ -150,7 +142,7 @@ const CONFIG = {
                 en: "A sales website for an online store, mimicking the layout and features of popular e-commerce websites."
             },
             image: "img/pj/project6.png",
-            link: "https://drive.google.com/drive/folders/1C_okn5Kn6mcYnu6EprvsZfu2HhndS5Z3?usp=drive_link"
+            link: "https://habib-portofolio-project.vercel.app/?id=5"
         },
     ],
 
@@ -173,7 +165,7 @@ const CONFIG = {
             navSkills: "Keahlian",
 
             loadingLine1: "Memuat...",
-            loadingLine2: "Menyiapkan pengalaman Anda...",
+            loadingLine2: "Menyiapkan portofolio saya...",
 
             heroEyebrow: "Portofolio // City Watch",
             heroHi: "Hai, saya",
@@ -222,7 +214,7 @@ const CONFIG = {
             navSkills: "Skills",
 
             loadingLine1: "Loading...",
-            loadingLine2: "Preparing your experience...",
+            loadingLine2: "Preparing my portfolio...",
 
             heroEyebrow: "Portfolio // City Watch",
             heroHi: "Hi, I'm",
